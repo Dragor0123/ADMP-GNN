@@ -139,12 +139,12 @@ for training in range(10) :
         edge_index = dataset.graph['edge_index']
         
         adj = to_scipy_sparse_matrix(edge_index)
-        G = nx.from_scipy_sparse_matrix(adj)
+        G = nx.from_scipy_sparse_array(adj)
         print(G)
     else :
         adj, features, labels, idx_train, idx_val, idx_test = load_data(path = args.datadir, dataset_name = args.dataset,device =  device)
         n = features.size(0)
-        G = nx.from_scipy_sparse_matrix(adj)
+        G = nx.from_scipy_sparse_array(adj)
         print(G)
 
     edge_index, edge_weight = from_scipy_sparse_matrix(adj)
@@ -226,7 +226,7 @@ for training in range(10) :
     # Oracle Accurcay
     model.eval()
     output = model(features.float(), edge_index )
-    is_well_predicted = torch.zeros((n,))[idx_test].to(device)
+    is_well_predicted = torch.zeros((n,), device=idx_test.device)[idx_test].to(device)
     for ex_layer in range(args.num_layers + 1 ) : 
         pred_ex_layer = torch.argmax(output[:,ex_layer,:][idx_test] , dim = 1)
         is_well_predicted = is_well_predicted + (pred_ex_layer == labels[idx_test])*1
